@@ -362,7 +362,6 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                 }}
               </SidebarLinkGroup>
               {/* <!-- Menu Item Ui Elements --> */}
-
             </ul>
           </div>
         </nav>
