@@ -39,7 +39,7 @@ const Expenses: React.FC = () => {
         axios.post<Expense>('http://localhost:3003/expenses', {
             description: formData.get('description'),
             amount: Number(formData.get('amount')),
-            tags: [formData.get('new-tags')]
+            tags: formData.getAll('new-tags')
         }).then(response => {
             refreshExpense().then(() => {
                 refreshTags();
@@ -48,6 +48,12 @@ const Expenses: React.FC = () => {
             .catch(error => {
                 console.error('Error fetching data:', error);
             });
+    }
+
+    const onChangeNewTags = () => {
+        const newTags = document.getElementById('new-tags') as HTMLInputElement;
+        const tags = newTags.value.split(',').map(tag => tag.trim());
+        setSelectedTags(tags.map(tag => ({ id: -1, name: tag })));
     }
 
 
@@ -128,6 +134,7 @@ const Expenses: React.FC = () => {
                                         id="new-tags"
                                         autoComplete="new-tags"
                                         value={selectedTags.map(tag => tag.name).join(', ')}
+                                        onChange={() => onChangeNewTags()}
                                         className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 dark:border-strokedark dark:bg-boxdark dark:text-white"
                                     />
                                 </div>
