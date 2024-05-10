@@ -18,8 +18,9 @@ const Expenses: React.FC = () => {
     const [expenses, setExpenses] = useState<Expense[]>([]);
     const [existedTags, setExistedTags] = useState<Tag[]>([]);
     const [selectedTags, setSelectedTags] = useState<Tag[]>([]);
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
-    const refreshExpense = () => axios.get('http://localhost:3003/expenses')
+    const refreshExpense = () => axios.get(apiUrl+'/expenses')
         .then(response => {
             setExpenses(response.data);
         })
@@ -27,7 +28,7 @@ const Expenses: React.FC = () => {
             console.error('Error fetching data:', error);
         });
 
-    const refreshTags = () => axios.get('http://localhost:3003/tags').then(response => {
+    const refreshTags = () => axios.get(apiUrl+'/tags').then(response => {
         setExistedTags(response.data);
     }).catch(error => {
         console.error('Error fetching data:', error);
@@ -36,7 +37,7 @@ const Expenses: React.FC = () => {
     async function onSubmit(event: FormEvent<HTMLFormElement>) {
         event.preventDefault();
         const formData = new FormData(event.currentTarget);
-        axios.post<Expense>('http://localhost:3003/expenses', {
+        axios.post<Expense>(apiUrl+'/expenses', {
             description: formData.get('description'),
             amount: Number(formData.get('amount')),
             tags: formData.getAll('new-tags')
