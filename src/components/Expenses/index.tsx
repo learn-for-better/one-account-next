@@ -15,12 +15,13 @@ interface Expense {
 }
 
 const Expenses: React.FC = () => {
+    const [formKey, setFormKey] = useState<number>(0);
     const [expenses, setExpenses] = useState<Expense[]>([]);
     const [existedTags, setExistedTags] = useState<Tag[]>([]);
     const [selectedTags, setSelectedTags] = useState<Tag[]>([]);
     const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
-    const refreshExpense = () => axios.get(apiUrl+'/expenses')
+    const refreshExpense = () => axios.get(apiUrl + '/expenses')
         .then(response => {
             setExpenses(response.data);
         })
@@ -28,7 +29,7 @@ const Expenses: React.FC = () => {
             console.error('Error fetching data:', error);
         });
 
-    const refreshTags = () => axios.get(apiUrl+'/tags').then(response => {
+    const refreshTags = () => axios.get(apiUrl + '/tags').then(response => {
         setExistedTags(response.data);
     }).catch(error => {
         console.error('Error fetching data:', error);
@@ -37,10 +38,17 @@ const Expenses: React.FC = () => {
     async function onSubmit(event: FormEvent<HTMLFormElement>) {
         event.preventDefault();
         const formData = new FormData(event.currentTarget);
-        axios.post<Expense>(apiUrl+'/expenses', {
-            description: formData.get('description'),
-            amount: Number(formData.get('amount')),
-            tags: formData.getAll('new-tags')
+        const description = formData.get('description');
+        const amount = Number(formData.get('amount'));
+        const tags = formData.getAll('new-tags');
+        if (!description || !amount) {
+            alert('Please fill in all fields');
+            return;
+        }
+        axios.post<Expense>(apiUrl + '/expenses', {
+            description: description,
+            amount: amount,
+            tags: tags
         }).then(response => {
             refreshExpense().then(() => {
                 refreshTags();
@@ -75,9 +83,14 @@ const Expenses: React.FC = () => {
         }
     }
 
+    const clickClearButton = () => {
+        setFormKey(prevKey => prevKey + 1);
+        setSelectedTags([]);
+    }
+
     return (
         <>
-            <form onSubmit={onSubmit}>
+            <form key={formKey} onSubmit={onSubmit}>
                 <div className="space-y-12">
                     <div className="border-b border-gray-900/10 pb-12">
                         <h2 className="text-base font-semibold leading-7 text-gray-900 dark:text-white">Add Expenses</h2>
@@ -145,7 +158,7 @@ const Expenses: React.FC = () => {
                 </div>
 
                 <div className="mt-6 flex items-center justify-end gap-x-6">
-                    <button type="button" className="text-sm font-semibold leading-6 text-gray-900">
+                    <button type="button" className="text-sm font-semibold leading-6 text-gray-900" onClick={() => clickClearButton()}>
                         Clear
                     </button>
                     <button
