@@ -144,7 +144,7 @@ const DepositPage: React.FC = () => {
                 <div className="-mx-8 flex flex-wrap items-center justify-center gap-y-3">
                     {deposits.sort((a, b) => b.amount - a.amount).map((deposit, index) => {
                         return (
-                            <div className="w-full px-8 sm:w-1/2">
+                            <div key={index} className="w-full px-8 sm:w-1/2">
                                 <div className="flex w-full items-center">
                                     <span className="mr-2 block h-3 w-full max-w-3 rounded-full bg-[#6a8db0]"></span>
                                     <p className="flex w-full justify-between text-sm font-medium text-black dark:text-white">
