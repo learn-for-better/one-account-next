@@ -1,20 +1,15 @@
+import { Deposit } from "@/types/deposit";
 import { ApexOptions } from "apexcharts";
 import React, { useState } from "react";
 import ReactApexChart from "react-apexcharts";
 
-interface ChartThreeState {
+interface DepositChartProps {
+  deposits: Deposit[];
+}
+interface DepositChartState {
   series: number[];
 }
-interface Deposit {
-  date: string;
-  description: string;
-  amount: number;
 
-}
-const deposits = [{ date: '2024-05-11T01:13:26.757Z', description: '支付宝', amount: 1000.55 },
-{ date: '2024-05-11T01:13:26.757Z', description: '微信', amount: 1500.90 },
-{ date: '2024-05-11T01:13:26.757Z', description: '现金', amount: 100.10 }
-]
 const colors = ['#264653', '#2a9d8f', '#e9c46a', '#f4a261', '#e76f51'];
 
 const generateOptions = (deposits: Deposit[]): ApexOptions => {
@@ -62,8 +57,8 @@ const generateOptions = (deposits: Deposit[]): ApexOptions => {
   }
 
 }
-const DepositChart: React.FC = () => {
-  const [state, setState] = useState<ChartThreeState>({
+const DepositChart = ({deposits}: DepositChartProps) => {
+  const [state, setState] = useState<DepositChartState>({
     series: [...deposits.map(deposit => deposit.amount)],
   });
 
@@ -75,13 +70,6 @@ const DepositChart: React.FC = () => {
 
   const [dateOptions, setDateOptions] = useState([uniqueDates])
 
-  const handleReset = () => {
-    setState((prevState) => ({
-      ...prevState,
-      series: [65, 34, 12, 56],
-    }));
-  };
-  handleReset;
   return (
     <div className="col-span-12 rounded-sm border border-stroke bg-white px-5 pb-5 pt-7.5 shadow-default dark:border-strokedark dark:bg-boxdark sm:px-7.5 xl:col-span-5">
       <div className="mb-3 justify-between gap-4 sm:flex">
@@ -138,7 +126,7 @@ const DepositChart: React.FC = () => {
       </div>
 
       <div className="-mx-8 flex flex-wrap items-center justify-center gap-y-3">
-        {deposits.sort((a, b) => b.amount - a.amount).map((deposit, index) => {
+        {deposits.map((deposit, index) => {
           return (
             <div key={index} className="w-full px-8 sm:w-1/2">
               <div className="flex w-full items-center">
