@@ -57,18 +57,33 @@ const generateOptions = (deposits: Deposit[]): ApexOptions => {
   }
 
 }
-const DepositChart = ({deposits}: DepositChartProps) => {
+const DepositChart = ({ deposits }: DepositChartProps) => {
+  const depositsByDate: Map<string, Deposit[]> = new Map();
+  deposits.forEach(deposit => {
+    const date = deposit.date;
+    if (!depositsByDate.has(date)) {
+      depositsByDate.set(date, []);
+    }
+    depositsByDate.get(date)?.push(deposit);
+  });
+
+
+  const [dateOption, setDateOption] = useState(Array.from(depositsByDate.keys()).sort((a, b) => new Date(b).getTime() - new Date(a).getTime()));
+  const [selectedDate, setSelectedDate] = useState<string>(dateOption[0] || '');
+  const [selectedDeposits, setSelectedDeposits] = useState<Deposit[]>(depositsByDate.get(selectedDate) || []);
   const [state, setState] = useState<DepositChartState>({
-    series: [...deposits.map(deposit => deposit.amount)],
+    series: [...selectedDeposits.map(deposit => deposit.amount)],
   });
 
   const options = generateOptions(deposits);
-  console.log('color: ', options.colors)
 
-  const dates = deposits.map(deposit => new Date(deposit.date));
-  const uniqueDates = new Set(dates.map(date => date.getFullYear() + '-' + (date.getMonth() + 1)));
-
-  const [dateOptions, setDateOptions] = useState([uniqueDates])
+  const handleChangeDate = (event: any) => {
+    setSelectedDate(event.target.value);
+    const selectedDeposits = depositsByDate.get(event.target.value) || [];
+    setState({
+      series: [...selectedDeposits.map(deposit => deposit.amount)],
+    });
+  }
 
   return (
     <div className="col-span-12 rounded-sm border border-stroke bg-white px-5 pb-5 pt-7.5 shadow-default dark:border-strokedark dark:bg-boxdark sm:px-7.5 xl:col-span-5">
@@ -84,10 +99,12 @@ const DepositChart = ({deposits}: DepositChartProps) => {
               name=""
               id=""
               className="relative z-20 inline-flex appearance-none bg-transparent py-1 pl-3 pr-8 text-sm font-medium outline-none"
+              value={selectedDate}
+              onChange={handleChangeDate}
             >
-              {dateOptions.map((date, index) => (
-                <option key={index} value="" className="dark:bg-boxdark">
-                  {date}
+              {dateOption.map((date, index) => (
+                <option key={index} value={date} className="dark:bg-boxdark">
+                  {new Date(date).toLocaleDateString()}
                 </option>
               ))}
             </select>
