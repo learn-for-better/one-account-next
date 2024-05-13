@@ -4,13 +4,13 @@ import React, { useState } from "react";
 import ReactApexChart from "react-apexcharts";
 
 interface DepositChartProps {
-  deposits: Deposit[];
+  depositMap: Map<string, Deposit[]>;
 }
 interface DepositChartState {
   series: number[];
 }
 
-const colors = ['#264653', '#2a9d8f', '#e9c46a', '#f4a261', '#e76f51'];
+const colors = ['#264653', '#2a9d8f', '#e9c46a', '#f4a261', '#e76f51', '#6DC5D1', '#FDE49E', '#FEB941', '#DD761C'];
 
 const generateOptions = (deposits: Deposit[]): ApexOptions => {
   return {
@@ -24,7 +24,6 @@ const generateOptions = (deposits: Deposit[]): ApexOptions => {
       show: false,
       position: "bottom",
     },
-
     plotOptions: {
       pie: {
         donut: {
@@ -57,29 +56,19 @@ const generateOptions = (deposits: Deposit[]): ApexOptions => {
   }
 
 }
-const DepositChart = ({ deposits }: DepositChartProps) => {
-  const depositsByDate: Map<string, Deposit[]> = new Map();
-  deposits.forEach(deposit => {
-    const date = deposit.date;
-    if (!depositsByDate.has(date)) {
-      depositsByDate.set(date, []);
-    }
-    depositsByDate.get(date)?.push(deposit);
-  });
-
-
-  const [dateOption, setDateOption] = useState(Array.from(depositsByDate.keys()).sort((a, b) => new Date(b).getTime() - new Date(a).getTime()));
-  const [selectedDate, setSelectedDate] = useState<string>(dateOption[0] || '');
-  const [selectedDeposits, setSelectedDeposits] = useState<Deposit[]>(depositsByDate.get(selectedDate) || []);
+const DepositChart = ({ depositMap }: DepositChartProps) => {
+  const dateKeys = Array.from(depositMap.keys());
+  const initDeposit = depositMap.get(dateKeys[0]) || [];
+  const [selectedDate, setSelectedDate] = useState<string>(dateKeys[0] || '');
+  const [selectedDeposits, setSelectedDeposits] = useState([...initDeposit] || []);
   const [state, setState] = useState<DepositChartState>({
     series: [...selectedDeposits.map(deposit => deposit.amount)],
   });
-
-  const options = generateOptions(deposits);
+  const options = generateOptions(selectedDeposits);
 
   const handleChangeDate = (event: any) => {
     setSelectedDate(event.target.value);
-    const selectedDeposits = depositsByDate.get(event.target.value) || [];
+    const selectedDeposits = depositMap.get(event.target.value) || [];
     setState({
       series: [...selectedDeposits.map(deposit => deposit.amount)],
     });
@@ -102,9 +91,9 @@ const DepositChart = ({ deposits }: DepositChartProps) => {
               value={selectedDate}
               onChange={handleChangeDate}
             >
-              {dateOption.map((date, index) => (
+              {dateKeys.map((date, index) => (
                 <option key={index} value={date} className="dark:bg-boxdark">
-                  {new Date(date).toLocaleDateString()}
+                  {date}
                 </option>
               ))}
             </select>
@@ -143,7 +132,7 @@ const DepositChart = ({ deposits }: DepositChartProps) => {
       </div>
 
       <div className="-mx-8 flex flex-wrap items-center justify-center gap-y-3">
-        {deposits.map((deposit, index) => {
+        {selectedDeposits && selectedDeposits.map((deposit, index) => {
           return (
             <div key={index} className="w-full px-8 sm:w-1/2">
               <div className="flex w-full items-center">
@@ -156,7 +145,7 @@ const DepositChart = ({ deposits }: DepositChartProps) => {
             </div>
           )
         })}
-        {2 % deposits.length != 0 && <div className="w-full px-8 sm:w-1/2"></div>}
+        {2 % selectedDeposits.length != 0 && <div className="w-full px-8 sm:w-1/2"></div>}
       </div>
     </div>
   );
