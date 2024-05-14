@@ -1,12 +1,12 @@
 "use client";
+import api from "@/utils/api";
 import React, { FormEvent, useEffect, useState } from "react";
-import axios from 'axios';
 
-interface Tag {
+export interface Tag {
     id: number;
     name: string;
 }
-interface Expense {
+export interface Expense {
     id: number;
     date: string;
     description: string;
@@ -19,9 +19,9 @@ const Expenses: React.FC = () => {
     const [expenses, setExpenses] = useState<Expense[]>([]);
     const [existedTags, setExistedTags] = useState<Tag[]>([]);
     const [selectedTags, setSelectedTags] = useState<Tag[]>([]);
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+    
 
-    const refreshExpense = () => axios.get(apiUrl + '/expenses')
+    const refreshExpense = () => api.getExpenses()
         .then(response => {
             setExpenses(response.data);
         })
@@ -29,7 +29,7 @@ const Expenses: React.FC = () => {
             console.error('Error fetching data:', error);
         });
 
-    const refreshTags = () => axios.get(apiUrl + '/tags').then(response => {
+    const refreshTags = () => api.getTags().then(response => {
         setExistedTags(response.data);
     }).catch(error => {
         console.error('Error fetching data:', error);
@@ -45,7 +45,7 @@ const Expenses: React.FC = () => {
             alert('Please fill in all fields');
             return;
         }
-        axios.post<Expense>(apiUrl + '/expenses', {
+        api.postExpenses({
             description: description,
             amount: amount,
             tags: tags

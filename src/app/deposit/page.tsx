@@ -3,15 +3,14 @@ import DepositChart from "@/components/Charts/DepositChart";
 import DepositLineChart from "@/components/Charts/DepositLineChart";
 import DefaultLayout from "@/components/Layouts/DefaultLayout";
 import { Deposit } from "@/types/deposit";
-import axios from "axios";
+import api from "@/utils/api";
 import React, { useState, useEffect } from "react";
 
 const DepositPage: React.FC = () => {
     const [depositMap, setDepositMap] = useState<Map<string, Deposit[]>>();
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
     useEffect(() => {
-        axios.get<Deposit[]>(apiUrl + '/deposits').then(response => {
+        api.getDeposits().then(response => {
             const deposits = response.data;
             const depositsByDate: Map<string, Deposit[]> = new Map();
             deposits.forEach(deposit => {
