@@ -28,8 +28,10 @@ const DepositPage: React.FC = () => {
 
     return (
         <DefaultLayout>
+            <div className="grid grid-cols-4 gap-4 md:gap-6 2xl:gap-7.5">
             {depositMap && <DepositChart depositMap={depositMap} />}
             {depositMap && <DepositLineChart depositMap={depositMap} />}
+            </div>
         </DefaultLayout>
     );
 }
