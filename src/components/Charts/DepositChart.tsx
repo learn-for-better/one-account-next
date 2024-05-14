@@ -1,15 +1,13 @@
 import { Deposit } from "@/types/deposit";
 import { ApexOptions } from "apexcharts";
-import { all } from "axios";
 import React, { useState } from "react";
 import ReactApexChart from "react-apexcharts";
+import { DepositChartProps } from "./depositType";
 
-interface DepositChartProps {
-  depositMap: Map<string, Deposit[]>;
-}
 interface DepositChartState {
   series: number[];
 }
+
 
 const colors = ['#264653', '#2a9d8f', '#e9c46a', '#f4a261', '#e76f51', '#6DC5D1', '#FDE49E', '#FEB941', '#DD761C'];
 
@@ -58,7 +56,7 @@ const generateOptions = (deposits: Deposit[]): ApexOptions => {
 
 }
 const DepositChart = ({ depositMap }: DepositChartProps) => {
-  const dateKeys = Array.from(depositMap.keys());
+  const dateKeys = Array.from(depositMap.keys()).sort((a, b) => new Date(b).getTime() - new Date(a).getTime());
   const initDeposit = depositMap.get(dateKeys[0]) || [];
   const [selectedDate, setSelectedDate] = useState<string>(dateKeys[0] || '');
   const [selectedDeposits, setSelectedDeposits] = useState<Deposit[]>([...initDeposit] || []);
@@ -75,8 +73,6 @@ const DepositChart = ({ depositMap }: DepositChartProps) => {
     });
     setSelectedDeposits([...newSelectedDeposits]);
     const allAmount = newSelectedDeposits.map(deposit => deposit.amount);
-    console.log('select: ', allAmount)
-    console.log('sum: ', allAmount.reduce((a, b) => a + b, 0))
   }
 
   return (
@@ -128,11 +124,11 @@ const DepositChart = ({ depositMap }: DepositChartProps) => {
 
       <div className="mb-2">
         <div id="chartThree" className="mx-auto flex justify-center">
-          <ReactApexChart
+          {(typeof window !== 'undefined') && <ReactApexChart
             options={options}
             series={state.series}
             type="donut"
-          />
+          />}
         </div>
       </div>
 
