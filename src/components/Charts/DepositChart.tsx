@@ -1,5 +1,6 @@
 import { Deposit } from "@/types/deposit";
 import { ApexOptions } from "apexcharts";
+import { all } from "axios";
 import React, { useState } from "react";
 import ReactApexChart from "react-apexcharts";
 
@@ -60,7 +61,7 @@ const DepositChart = ({ depositMap }: DepositChartProps) => {
   const dateKeys = Array.from(depositMap.keys());
   const initDeposit = depositMap.get(dateKeys[0]) || [];
   const [selectedDate, setSelectedDate] = useState<string>(dateKeys[0] || '');
-  const [selectedDeposits, setSelectedDeposits] = useState([...initDeposit] || []);
+  const [selectedDeposits, setSelectedDeposits] = useState<Deposit[]>([...initDeposit] || []);
   const [state, setState] = useState<DepositChartState>({
     series: [...selectedDeposits.map(deposit => deposit.amount)],
   });
@@ -68,10 +69,14 @@ const DepositChart = ({ depositMap }: DepositChartProps) => {
 
   const handleChangeDate = (event: any) => {
     setSelectedDate(event.target.value);
-    const selectedDeposits = depositMap.get(event.target.value) || [];
+    const newSelectedDeposits = depositMap.get(event.target.value) || [];
     setState({
-      series: [...selectedDeposits.map(deposit => deposit.amount)],
+      series: [...newSelectedDeposits.map(deposit => deposit.amount)],
     });
+    setSelectedDeposits([...newSelectedDeposits]);
+    const allAmount = newSelectedDeposits.map(deposit => deposit.amount);
+    console.log('select: ', allAmount)
+    console.log('sum: ', allAmount.reduce((a, b) => a + b, 0))
   }
 
   return (
@@ -145,7 +150,13 @@ const DepositChart = ({ depositMap }: DepositChartProps) => {
             </div>
           )
         })}
-        {2 % selectedDeposits.length != 0 && <div className="w-full px-8 sm:w-1/2"></div>}
+        <div className="w-full px-8 sm:w-1/2">
+          <p className="flex w-full justify-between text-sm font-medium text-black dark:text-white">
+            <span>总和:</span>
+            <span> {selectedDeposits.map(deposit => deposit.amount).reduce((a, b) => a + b, 0)} </span>
+          </p>
+        </div>
+        {2 % (selectedDeposits.length + 1) != 0 && <div className="w-full px-8 sm:w-1/2"></div>}
       </div>
     </div>
   );
